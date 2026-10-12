@@ -1,9 +1,10 @@
 import axios from "axios";
 import { useState } from "react";
-import "./index.css"
+import "./index.css";
 
 function App() {
     const [previewUrl, setPreviewUrl] = useState(null);
+    const [serverThumbnail, setServerThumbnail] = useState(null);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -29,8 +30,24 @@ function App() {
             const response = await axios.post(
                 "http://localhost:8000/upload",
                 formData,
+                {
+                    onUploadProgress: (progressEvent) => {
+                        if (progressEvent.total) {
+                            const percentCompleted = Math.round(
+                                (progressEvent.loaded * 100) /
+                                    progressEvent.total,
+                            );
+                            console.log(
+                                `Прогресс загрузки: ${percentCompleted}%`,
+                            );
+                        }
+                    },
+                },
             );
-            console.log(response.data);
+
+            setServerThumbnail(response.data.thumbnail_url);
+            setPreviewUrl(null);
+            e.target.reset();
         } catch (error) {
             console.error(error);
         }
@@ -52,6 +69,14 @@ function App() {
                 <div>
                     <p>Лолкальный предпросмотр:</p>
                     <img src={previewUrl} alt="Предпросмотр" />
+                </div>
+            )}
+
+            {serverThumbnail && (
+                <div>
+                    <p>Успешно загружено</p>
+                    <p>Миниатюра от сервера:</p>
+                    <img src={serverThumbnail} alt="Миниатюра от сервера" />
                 </div>
             )}
         </>
