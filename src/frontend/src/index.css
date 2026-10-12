@@ -109,3 +109,8 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+img {
+    max-width: 200px;
+    max-height: 200px;
+}
